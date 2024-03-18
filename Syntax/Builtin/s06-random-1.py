@@ -60,9 +60,8 @@ lotto = [] # 로또 번호 넣을 자리
 for i in range(6):
     ball_num = random_pop(ball_box) # 숫자 추출
     lotto.append(ball_num) # 로또 번호 리스트에 추가
-    print(f"[{i+1}] {ball_num}") # 뽑은 숫자 출력
     
-print(lotto)
+print(lotto) # 로또 번호 출력
 # %%
 
 ls = 1 # 시작값
