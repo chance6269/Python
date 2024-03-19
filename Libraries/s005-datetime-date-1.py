@@ -18,3 +18,29 @@ day1
 day2 = datetime.date(2021, 6, 5)
 day2
 
+diff = day2 - day1
+diff
+
+diff.days
+
+# %%
+import datetime
+day3 = datetime.datetime(2020, 12, 14, 14, 10, 50)
+day3.hour
+day3.minute
+day3.second
+
+# %%
+import datetime
+day= datetime.date(2019, 12, 14)
+time = datetime.time(10, 14, 50)
+dt = datetime.datetime.combine(day, time)
+dt # datetime.datetime(2019, 12, 14, 10, 14, 50)
+
+# %%
+# 요일 알아내기
+# weekday()
+import datetime
+day = datetime.date(2019, 12, 14) # 토요일
+day.weekday() # 5
+day.isoweekday() # 6
