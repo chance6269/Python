@@ -27,23 +27,52 @@ Created on Wed Mar 20 16:52:03 2024
     
 # %%
 import pandas as pd
-df=pd.read_csv('score.txt')
+# df=pd.read_csv('score.txt')
+# print(df)
+data = [
+        [90, 98, 80, 100, 0, 0],
+        [90, 98, 80, 100, 0, 0],
+        [90, 98, 80, 100, 0, 0],
+        [90, 98, 80, 100, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0]
+        ]
+
+df = pd.DataFrame(data)
 print(df)
 
 # %%
 # 1. 이름을 인덱스로 지정
-ndf = df.set_index('이름')
-print(ndf)
+df.index = ['서준','준서','인아','수성', '총점', '평균']
+df
 # %%
 # 2. 각 학생의 총점과 평균
-# 컬럼 추가
-ndf.columns = ['수학','영어','음악','체육','총점','평균']
-print(ndf.columns)
-tot = 0
-for i in ndf.loc['서준']:
-    tot += i
+df.columns = ['수학','영어','음악','체육','총점','평균']
+df
+
+# df.loc['서준']['수학'] = 11
+# 연쇄 할당은 위험합니다! ['서준','수학']
+for student in df.index:
+    tot = 0    
     
-print(tot)
+    for i in ['수학', '영어','음악','체육']:
+        tot += df.loc[student,i]
+        
+    df.loc[student,['총점','평균']] = [tot, tot/4.0]
+    
     
 
+print(df)    
 
+# %%
+# 3. 각 과목별 총점과 평균
+for col in df.columns:
+    tot = 0
+    
+    for student in ['서준','준서','인아','수성']:
+        tot += df.loc[student, col]
+        
+    df.loc['총점',col] = tot
+    df.loc['평균',col] = tot / 4.0
+    
+print(df)

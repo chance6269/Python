@@ -4,7 +4,12 @@ Created on Wed Mar 20 14:18:32 2024
 
 @author: jcp
 """
+# 판다스 : DataFrame
 
+# 형식:
+# df = pd.DataFrame(data[, index=index_data, columns=columns_data])
+
+#%%
 import pandas as pd
 
 # list
