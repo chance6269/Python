@@ -1,0 +1,11 @@
+[셀레니움]
+교제: 파이썬 웹 스크레이핑 완벽 가이드
+7장: 셀레니움을 이용한 웹 스크레이핑
+
+(ChromeDriver)
+ChromeDriver 114.0.5735.90
+다운로드:chromedriver_win32.zip
+
+(Google Chrome)
+https://google-chrome.en.uptodown.com/windows/versions
+113.0.5672.93
