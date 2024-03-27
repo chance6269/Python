@@ -208,7 +208,19 @@ def get_artists(artists_info):
     
     artists_name_str = ", ".join(artists_name) # 리스트로 된 아티스트 이름을 문자열로 변환 
     return artists_name_str
+# %%
+def get_artists2(artists_info):
+    artists_name = []
+    name = artists_info[0]['name']
+    artists_name.append(name)
+    
+    artists_name_str = ", ".join(artists_name) # 리스트로 된 아티스트 이름을 문자열로 변환 
+    return artists_name_str
 
+df2 = df_artist_top_track2['artists'].apply(get_artists2)
+print(df2.head())
+df2 = df_artist_top_track2['artists'].apply(get_artists)
+print(df2.head())
 
 # In[ ]:
 
