@@ -1,0 +1,55 @@
+유형 : 내용 오류/확인 요청
+
+위치 : 페이지 첫번째 손코딩
+
+
+	
+
+				  for fpath in font_files:	
+	
+	
+	
+
+				      fm.fontManager.addfont(fpath)	
+	
+
+ 
+
+교재에 for 문이 들여쓰기가 되어 있는데, 
+
+들여쓰기를 하게 되면 오류가 발생해서 앞에 코드와 동일한 들여쓰기로 작성해야 오류가 발생하지 않습니다.
+
+ 
+
+ --------------------------
+
+[수정 전]
+
+
+	
+
+		font_files = fm.findSystemFonts(fontpaths=['/usr/share/fonts/truetype/nanum'])
+	
+
+	
+
+		∨∨∨∨for fpath in font_files:
+	
+
+	
+
+		∨∨∨∨∨∨∨∨fm.fontManager.addfont(fpath)
+	
+
+ 
+
+ 
+
+[수정 후]
+
+
+	font_files = fm.findSystemFonts(fontpaths=['/usr/share/fonts/truetype/nanum'])
+
+	for fpath in font_files:
+
+	∨∨∨∨fm.fontManager.addfont(fpath)
