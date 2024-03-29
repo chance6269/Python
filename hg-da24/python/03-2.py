@@ -40,7 +40,7 @@ ns_book4.info()
 # In[ ]:
 
 
-ns_book4.info(memory_usage='deep')
+# ns_book4.info(memory_usage='deep')
 
 
 # ## 누락된 값 처리하기
