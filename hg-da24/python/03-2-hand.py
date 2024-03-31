@@ -8,7 +8,7 @@ Created on Fri Mar 29 14:17:35 2024
 # 3-2 잘못된 데이터 수정하기
 
 
-# import gdown
+import gdown
 
 # gdown.download('https://bit.ly/3GisL6J', 'ns_book4.csv', quiet=False)
 
@@ -22,7 +22,7 @@ ns_book4.head()
 # %%
 # df.info() :
     # 전체 행 갯수, 열 개수, 열 이름, 누락된 값이 없는 행 개수, 열 데이터 타입
-ns_book4.info()
+# ns_book4.info()
 
 # %%
 # ns_book4.info(memory_usage='deep')
@@ -228,8 +228,145 @@ na_rows = ns_book5['도서명'].isna() | ns_book5['저자'].isna() \
 print(na_rows.sum()) # 5268
 ns_book5[na_rows].head(2)
 
-# %% 
-# BeautifulSoup로 채우기
-
+# %%
 import requests
 from bs4 import BeautifulSoup
+
+# %%
+# 도서명을 가져오는 함수
+def get_book_title(isbn):
+    # Yes24 도서 검색 페이지 URL
+    url = 'http://www.yes24.com/Product/Search?domain=BOOK&query={}'
+    # URL에 ISBN을 넣어 HTML 가져옵니다.
+    r = requests.get(url.format(isbn))
+    soup = BeautifulSoup(r.text, 'html.parser') # HTML 파싱
+    # 클래스 이름이 'gd_name'인 <a> 태그의 텍스트를 가져옵니다
+    title = soup.find('a', attrs={'class':'gd_name'}).get_text()
+    return title
+
+# %%
+get_book_title(9791191266054) # '골목의 시간을 그리다'
+
+# %%
+# 저자, 출판사, 발행년도 추출하여 반환하는 함수 만들기
+# 저자는 2명 이상일 수 있기 때문에
+# find_all()로 저자를 담은 <a>태그를 모두 추출
+# <a>태그 텍스트가 여러개 추출되면 하나로 합쳐주기 :
+    # for문으로 리스트에 넣은 후 join()으로
+    
+# 발행년도는 정규식으로 연도만 추출.
+# re 모듈의 findall() : 매칭되는 모든 문자열을 리스트로 반환
+# r'\d{4}'
+# %%
+
+import re
+# 저자, 출판사, 발행년도 추출하여 반환하는 함수
+def get_book_info(row):
+    title = row['도서명']
+    author = row['저자']
+    pub = row['출판사']
+    year = row['발행년도']
+    # yes24 도서검색 페이지 Url
+    url = 'http://www.yes24.com/Product/Search?domain=BOOK&query={}'
+    # url에 isbn넣어 html 가져오기
+    r = requests.get(url.format(row['ISBN']))
+    soup = BeautifulSoup(r.text, 'html.parser') # html 파싱
+    try:
+        if pd.isna(title):
+            # 클래스 이름이 'gd_name'인 <a> 태그의 텍스트 가져오기
+            title = soup.find('a', attrs={'class':'gd_name'}).get_text()
+    except AttributeError:
+        pass
+    
+    try:
+        if pd.isna(author):
+            # 클래스 이름이 'info_auth'인 <span> 태그 아래 <a> 태그의 텍스트 가져오기
+            authors = soup.find('span', attrs={'class':'info_auth'}).get_text()
+            author_list = [auth.get_text() for auth in authors]
+            author = ','.join(author_list)
+    except AttributeError:
+        pass
+    
+    try:
+        if pd.isna(pub):
+            pub = soup.find('span', attrs={'class':'info_pub'}).find('a').get_text()
+    except AttributeError:
+        pass
+    
+    try:
+        if year == -1:
+            year_str = soup.find('span', attrs={'class':'info_date'}).get_text()
+            # year = re.findall(r'\d{4}', year_str)[0]
+            year = year_str # 왜 Dtype이 안바뀌고 년도만 제대로 들어갈까?
+    except AttributeError:
+        pass
+    
+    return title, author, pub, year
+
+# %%
+# apply(.., result_type='expand') : 반환된 값을 각기 다른 열로 만듦
+updated_sample2 = ns_book5[na_rows].head(2).apply(get_book_info, axis=1, result_type='expand')
+
+updated_sample2
+updated_sample2.info()
+# %%
+gdown.download('https://bit.ly/3UJZiHw', 'ns_book5_update.csv', quiet=False)
+ns_book5_update = pd.read_csv('ns_book5_update.csv', index_col=0)
+ns_book5_update.head()
+
+# %%
+# 업데이트 후 누락된 행 확인
+ns_book5.update(ns_book5_update)
+na_rows = ns_book5['도서명'].isna() | ns_book5['저자'].isna() \
+        | ns_book5['출판사'].isna() | ns_book5['발행년도'].eq(-1)
+print(na_rows.sum()) # 4615
+# 여전히 채우지 못한 정보는 다른 온라인 서점이나 서지정보유통시스템을 활용할 수 있다.
+
+# %%
+# dropna()에 도서명, 저자, 출판사 열을 리스트로 지정한 후 누락된 값이 있는 행을 삭제하고
+# 발행년도 열 값이 -1이 아닌 행만 선택하여 ns_book6 데이터프레임 생성
+ns_book5 = ns_book5.astype({'발행년도': 'int32'})
+ns_book6 = ns_book5.dropna(subset=['도서명','저자','출판사'])
+ns_book6 = ns_book6[ns_book6['발행년도'] != -1]
+ns_book6.head()
+
+# %%
+ns_book6.to_csv('ns_book6.csv', index=False)
+
+# %%
+# 데이터를 이해하고 올바르게 정제하기
+# 일괄 처리 함수
+
+def data_fixing(ns_book4):
+    ns_book4 = ns_book4.astype({'도서권수':'int32', '대출건수':'int32'})
+    
+    set_isbn_na_rows = ns_book4['세트 ISBN'].isna()
+    ns_book4.loc[set_isbn_na_rows, '세트 ISBN'] = ''
+    
+    ns_book5 = ns_book4.replace({'발행년도':'.*(\d{4}).*'}, r'\1', regex=True)
+    unkown_year = ns_book5['발행년도'].str.contains('\D', na=True)
+    ns_book5.loc[unkown_year, '발행년도'] = '-1'
+    
+    ns_book5 = ns_book5.astype({'발행년도': 'int32'})
+    
+    dangun_yy_rows = ns_book5['발행년도'].gt(4000)
+    ns_book5.loc[dangun_yy_rows, '발행년도'] -= 2333
+    
+    dangun_year = ns_book5['발행년도'].gt(4000)
+    ns_book5.loc[dangun_year, '발행년도'] = -1
+    
+    old_books = ns_book5['발행년도'].gt(0) & ns_book5['발행년도'].lt(1900)
+    ns_book5.loc[old_books, '발행년도'] = -1
+    
+    na_rows = ns_book5['도서명'].isna() | ns_book5['저자'].isna() \
+            | ns_book5['출판사'].isna() | ns_book5['발행년도'].eq(-1)
+            
+    updated_sample = ns_book5[na_rows].apply(get_book_info, axis=1, result_type = 'expand')
+    updated_sample.columns = ['도서명','저자','출판사','발행년도']
+    
+    ns_book5.update(updated_sample)
+    
+    ns_book6 = ns_book5.dropna(subset=['도서명','저자','출판사'])
+    ns_book6 = ns_book6[ns_book6['발행년도'] != -1]
+    
+    return ns_book6
