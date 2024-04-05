@@ -47,6 +47,7 @@ print(len(train_set), len(test_set))
 
 # In[5]:
 
+    # 도서권수로 대출건수 예측
 
 X_train = train_set[['도서권수']]
 y_train = train_set['대출건수']
@@ -56,10 +57,12 @@ print(X_train.shape, y_train.shape)
 
 # In[6]:
 
-
+# 선형회귀 모델
 from sklearn.linear_model import LinearRegression
 
+# 모델 생성
 lr = LinearRegression()
+# 훈련
 lr.fit(X_train, y_train)
 
 
@@ -68,10 +71,14 @@ lr.fit(X_train, y_train)
 # In[7]:
 
 
-X_test = test_set[['도서권수']]
-y_test = test_set['대출건수']
+X_test = test_set[['도서권수']] # 입력
+y_test = test_set['대출건수'] # 정답
 
-lr.score(X_test, y_test)
+# 결정계수
+# R^2 = 1 - (타깃/예측)^2 / (타깃/평균)^2
+# 1에 가까울수록 관계가 깊다
+lr.score(X_test, y_test) # 0.10025676249337057
+# 10%정도로 별 상관 없다
 
 
 # In[8]:
@@ -85,8 +92,10 @@ lr.score(y_test.to_frame(), y_test)
 
 # In[9]:
 
+# 기울기 : 12.8764
+# 절편 : -3.14554
 
-print(lr.coef_, lr.intercept_)
+print(lr.coef_, lr.intercept_) # [12.87648822] -3.1455454195820653
 
 
 # ## 카테고리 예측하기: 로지스틱 회귀
